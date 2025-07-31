@@ -1,0 +1,55 @@
+# Example OpenMesh manifest for a face-blurring service
+version: "0.1"
+name: "face-blur-api"
+description: "Privacy-preserving image processing with face detection and blurring"
+
+# Runtime configuration
+runtime: "python-3.12"
+endpoint: "https://face-blur.example.com"
+health: "/health"
+
+# Service capabilities
+capabilities:
+  - name: "blur_faces"
+    description: "Detect and blur all faces in an image"
+    input_schema: "https://face-blur.example.com/schemas/blur_faces_input.json"
+    output_schema: "https://face-blur.example.com/schemas/blur_faces_output.json"
+  
+  - name: "count_faces"
+    description: "Count the number of faces in an image"
+    input_schema: "https://face-blur.example.com/schemas/count_faces_input.json"
+    output_schema: "https://face-blur.example.com/schemas/count_faces_output.json"
+  
+  - name: "blur_selective"
+    description: "Blur specific faces based on coordinates"
+    input_schema: "https://face-blur.example.com/schemas/blur_selective_input.json"
+    output_schema: "https://face-blur.example.com/schemas/blur_selective_output.json"
+
+# Payment configuration
+pricing:
+  model: "per_call"
+  amount: "0.001"
+  currency: "usdc"
+
+payment:
+  rail: "x402"
+  address: "0x742d35Cc6634C0532925a3b844Bc9e7595f7E8e"
+  chain: "base"
+
+# Performance characteristics
+performance:
+  latency_p50: 150
+  latency_p99: 400
+  throughput: 500
+  regions: ["us-east-1", "eu-west-1", "ap-southeast-1"]
+
+# Additional metadata
+author: "privacy-tools@example.com"
+repository: "https://github.com/example/face-blur-api"
+documentation: "https://docs.example.com/face-blur"
+license: "MIT"
+
+# Special requirements
+requirements:
+  compute: "gpu"
+  compliance: ["gdpr", "ccpa"]
