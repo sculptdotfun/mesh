@@ -1,37 +1,51 @@
 # OpenMesh
 
-The agent economy needs a discovery layer. OpenMesh is building it.
+The marketplace for Model Context Protocol (MCP) servers. Discover, pay, and use AI tools in milliseconds.
 
 ## The Problem
 
-Every AI agent today hits the same wall: finding and paying for services requires API keys, credit cards, and manual integration. We're building planetary-scale intelligence with stone-age plumbing.
+MCP servers are revolutionizing how AI agents access tools and data. But they're missing two critical pieces: **discovery** and **monetization**.
 
-OpenMesh is the missing layer—where any agent finds any tool in milliseconds, pays with x402, and moves on.
+Today: Manually configure each MCP server. No way to find new ones. No way for creators to get paid.
+
+OpenMesh fixes this—any agent discovers any MCP server, pays instantly with x402, and gets to work.
 
 ## How It Works
 
 ```bash
-# 1. Add a manifest to your MCP server
-$ npx openmesh init
-✓ Generated manifest.yaml
+# 1. Add OpenMesh to your MCP server
+$ npx openmesh init --mcp
+✓ Generated manifest.yaml for MCP server
+✓ Auto-discovered 5 tools from your server
 
-# 2. Deploy anywhere, join the mesh
-$ npx openmesh deploy
-✓ Live at https://your-api.fly.dev
-✓ Published to registry
+# 2. Publish to the registry
+$ npx openmesh publish
+✓ MCP server registered
+✓ Tools indexed and searchable
+✓ Live at https://registry.openmesh.dev/your-server
 
 # 3. Enable payments (optional)
 $ npx openmesh enable x402
-✓ Accepting USDC payments (97% yours)
+✓ Payment middleware added
+✓ Each tool call now costs 0.001 USDC
 ```
 
 ## What This Enables
 
-**Today**: An agent needs document OCR → queries mesh → finds fastest service → pays 0.0001 USDC → done in 200ms
+**For AI Agents**:
+- Discover MCP tools across the entire ecosystem
+- Pay per use with x402 (no API keys!)
+- Switch providers instantly based on price/performance
 
-**Tomorrow**: Business agents discover and compose hundreds of services on demand, all without human touchpoints
+**For MCP Developers**:
+- Monetize your MCP server with one command
+- Get discovered by thousands of AI agents
+- Focus on building tools, not payment infrastructure
 
-**Eventually**: Millions of specialized agents form flash organizations. This is how we get ASI—not one big brain, but a mesh of minds.
+**For the Ecosystem**:
+- Anthropic's MCP handles tool standardization
+- OpenMesh adds discovery and payments
+- Together: a complete AI tool economy
 
 ## Project Status
 
@@ -54,12 +68,14 @@ $ npx openmesh enable x402
 # Install CLI
 npm install -g openmesh
 
-# Create a manifest for your MCP server
-openmesh init
+# For MCP server developers
+openmesh init --mcp              # Create manifest from MCP server
+openmesh validate                 # Test your MCP endpoints
+openmesh publish                  # Add to registry
 
-# Validate and deploy
-openmesh validate
-openmesh deploy --provider fly
+# For AI agents/developers
+openmesh discover "code analysis" # Find MCP tools
+openmesh test <server-name>       # Try before integrating
 ```
 
 ## Specification
@@ -70,11 +86,11 @@ See [SPEC.md](SPEC.md) for the complete manifest format.
 
 This is a community project under SCULPT. We need:
 
-- **Spec Review**: Is the manifest too simple? What's missing?
-- **CLI Development**: Help implement the core commands in Rust/Go/TypeScript
-- **Registry Design**: How should the decentralized registry work?
-- **Integration Examples**: Port an MCP server to use OpenMesh
-- **Payment Rails**: x402 helpers, Solana support, future adapters
+- **MCP Integration**: Help us support more MCP features
+- **CLI Development**: TypeScript implementation using MCP SDK
+- **Registry Design**: How should MCP server discovery work?
+- **Example Servers**: Build MCP servers with OpenMesh payments
+- **Client Libraries**: Integrate OpenMesh into AI frameworks
 
 Join the discussion:
 - **Discord**: [discord.gg/sculpt](https://discord.gg/sculpt) → #openmesh
@@ -82,27 +98,29 @@ Join the discussion:
 
 ## Philosophy
 
+- **MCP-native**: Built on Anthropic's Model Context Protocol
 - **Open by default**: Apache-2 spec, MIT CLI, CC-BY registry data
-- **No lock-in**: Self-host everything, migrate anytime
+- **No lock-in**: Your MCP server, your rules
 - **Payments optional**: Free tools stay free, paid tools get rails
-- **Agent-first**: Built for machines, not humans
+- **Agent-first**: Built for AI, not humans
 
 ## Roadmap
 
-### Phase 1 (Current)
-- Define manifest spec
-- Design CLI interface
-- Gather community feedback
+### Phase 1: MCP Discovery (Current)
+- Manifest spec for MCP servers
+- CLI for MCP server registration
+- Basic registry with tool search
 
-### Phase 2 (Next)
-- Implement CLI basics
-- Launch test registry
-- First 10 services live
+### Phase 2: Payment Layer (Next)
+- x402 middleware for MCP
+- Per-tool pricing configuration
+- Payment verification system
 
-### Phase 3 (Future)
-- Production registry
-- Multi-chain payments
-- Agent framework integrations
+### Phase 3: Ecosystem Growth (Future)
+- Claude Desktop integration
+- LangChain/AutoGen plugins
+- Decentralized registry
+- Advanced analytics
 
 ## License
 

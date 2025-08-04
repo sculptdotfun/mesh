@@ -1,0 +1,22 @@
+# Example for local MCP server (stdio transport)
+version: "0.1"
+name: "local-dev-tools"
+description: "Local development tools MCP server"
+
+mcp:
+  server_url: "stdio://./bin/mcp-server"
+  transport: "stdio"
+  
+# Tools will be auto-discovered when connecting
+# No explicit tool list needed
+
+# Optional: Add payments even for local servers
+pricing:
+  model: "flat"
+  default: 0.0001
+  currency: "usdc"
+
+payment:
+  rail: "x402"
+  address: "0x742d35Cc6634C0532925a3b844Bc9e7595f7E8e"
+  chain: "base"

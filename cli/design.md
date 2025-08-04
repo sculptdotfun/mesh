@@ -5,7 +5,7 @@ Status: Design Phase
 
 ## Overview
 
-The OpenMesh CLI is a developer tool for creating, validating, and publishing service manifests to the OpenMesh registry. It follows Unix philosophy: do one thing well, compose with other tools.
+The OpenMesh CLI is a developer tool for registering, discovering, and monetizing Model Context Protocol (MCP) servers. It automates MCP server discovery and adds payment capabilities through x402.
 
 ## Command Structure
 
@@ -13,113 +13,212 @@ The OpenMesh CLI is a developer tool for creating, validating, and publishing se
 openmesh <command> [options]
 
 Commands:
-  init        Create a new manifest.yaml interactively
-  validate    Check manifest syntax and semantics
-  test        Test service endpoint and capabilities
-  publish     Publish manifest to registry
-  update      Update existing registry entry
-  unpublish   Remove service from registry
-  status      Check service health and metrics
-  enable      Enable payment rails
-  disable     Disable payment requirements
-  search      Search registry for services
-  export      Export manifest in different formats
-  import      Import from other API formats
+  init        Create manifest from MCP server
+  validate    Test MCP server connectivity
+  publish     Register MCP server in OpenMesh
+  discover    Find MCP tools by capability
+  test        Try MCP tools before integrating
+  inspect     View MCP server details
+  enable      Add payment middleware to MCP
+  pricing     Configure per-tool pricing
+  earnings    View payment analytics
+  create      Create new MCP server from template
+  dev         Local development with payments
   version     Show CLI version
   help        Show help for commands
 ```
 
 ## Command Details
 
-### `openmesh init`
+### `openmesh init --mcp`
 
-Interactive manifest creation wizard:
+Auto-discovers MCP server capabilities:
 
 ```bash
-$ openmesh init
-? Service name: face-blur-api
-? Description: Privacy-preserving image processing
-? Runtime: python-3.12
-? Endpoint URL: https://api.example.com
-? Add capabilities? (Y/n) Y
-? Capability name: blur_faces
-? Capability description: Detect and blur faces in images
-? Add another capability? (y/N) n
+$ openmesh init --mcp
+? MCP server URL: https://analyzer.example.com/mcp
+✓ Connected to MCP server
+✓ Discovered 5 tools:
+  - analyze_complexity: Analyze code complexity
+  - format_code: Format code with AI
+  - find_bugs: Find potential bugs
+  - suggest_refactor: Suggest refactoring
+  - generate_tests: Generate unit tests
+
 ? Enable payments? (y/N) y
-? Payment rail: x402
-? Price per call: 0.001
+? Pricing model: (per_tool/flat/subscription) per_tool
+? Default price per tool: 0.001
 ? Currency: usdc
 ? Payment address: 0x742d35Cc6634C0532925a3b844Bc9e7595f7E8e
 ? Chain: base
 
 ✓ Created manifest.yaml
-✓ Run 'openmesh validate' to check your manifest
+✓ Run 'openmesh validate' to test your MCP server
 ```
 
 ### `openmesh validate`
 
-Validates manifest syntax and tests endpoints:
+Tests MCP server connectivity and tools:
 
 ```bash
 $ openmesh validate
-✓ Valid YAML syntax
-✓ Required fields present
-✓ Endpoint reachable (200 OK)
-✓ Health check passed
-✓ Capabilities accessible
-✓ Payment configuration valid
+✓ Valid manifest syntax
+✓ MCP server reachable
+✓ Successfully connected via HTTP transport
+✓ Server info: code-analyzer v1.0.0
+✓ Tools verified:
+  - analyze_complexity ✓
+  - format_code ✓
+  - find_bugs ✓
+  - suggest_refactor ✓
+  - generate_tests ✓
+✓ Resources accessible:
+  - code://project/* ✓
 
-manifest.yaml is valid and ready to publish
+MCP server is ready to publish!
 ```
 
-### `openmesh publish`
+### `openmesh discover`
 
-Publishes to registry with signature:
+Find MCP tools across the ecosystem:
 
 ```bash
-$ openmesh publish
-? Sign manifest with wallet? (Y/n) Y
-✓ Manifest signed
-✓ Published to registry
-✓ Service live at: https://registry.openmesh.fun/face-blur-api
+$ openmesh discover "code analysis"
+Found 12 MCP tools:
 
-Your service is now discoverable by agents worldwide
+code-analyzer-mcp/analyze_complexity (0.001 USDC)
+  Analyze code complexity and suggest improvements
+  Server: https://analyzer.example.com/mcp
+  Latency: 150ms avg
+
+ast-tools-mcp/parse_code (FREE)
+  Parse code into AST for analysis
+  Server: https://ast.tools/mcp
+  Latency: 50ms avg
+
+ai-review-mcp/review_pr (0.005 USDC)
+  AI-powered pull request review
+  Server: https://review.ai/mcp
+  Latency: 2000ms avg
+
+Use 'openmesh inspect <server-name>' for details
 ```
 
-### `openmesh enable`
+### `openmesh test`
 
-Add payment rails to existing service:
+Try MCP tools before integrating:
+
+```bash
+$ openmesh test code-analyzer-mcp/analyze_complexity
+? Provide test input (or press enter for example):
+{
+  "code": "function calculate(a,b,c,d,e,f,g) { ... }"
+}
+
+✓ Calling analyze_complexity...
+✓ Success! (latency: 147ms, cost: 0.001 USDC)
+
+Result:
+{
+  "complexity": 12,
+  "issues": ["Too many parameters", "Nested conditions"],
+  "suggestions": ["Consider using an options object"]
+}
+
+? Test another tool? (Y/n)
+```
+
+### `openmesh enable x402`
+
+Add payment middleware to existing MCP server:
 
 ```bash
 $ openmesh enable x402
-? Price per call: 0.001
-? Currency: usdc
-? Payment address: 0x742d35Cc6634C0532925a3b844Bc9e7595f7E8e
-? Chain: base
+? Configure pricing per tool? (Y/n) Y
 
-✓ Updated manifest.yaml
-✓ Run 'openmesh update' to apply changes
+analyze_complexity
+? Price (default: 0.001): 0.001
+
+format_code  
+? Price (default: 0.001): 0.0005
+
+find_bugs
+? Price (default: 0.001): 0.002
+
+✓ Generated payment configuration
+✓ Add this to your MCP server:
+
+import { x402Middleware } from '@openmesh/mcp-x402';
+
+server.use(x402Middleware({
+  pricing: {
+    'analyze_complexity': 0.001,
+    'format_code': 0.0005,
+    'find_bugs': 0.002
+  },
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f7E8e',
+  chain: 'base'
+}));
 ```
 
-### `openmesh search`
+### `openmesh create`
 
-Query the registry:
+Bootstrap new MCP server with OpenMesh:
 
 ```bash
-$ openmesh search --capability blur_faces --max-price 0.01
-Found 3 services:
+$ openmesh create my-tools --template typescript
+✓ Created MCP server scaffold in ./my-tools
+✓ Installed dependencies
+✓ Generated example tools
+✓ Added OpenMesh payment middleware
 
-1. face-blur-api (0.001 USDC)
-   Privacy-preserving image processing
-   Latency: 150ms (p50), Uptime: 99.9%
+Next steps:
+  cd my-tools
+  npm run dev         # Start development server
+  openmesh init --mcp # Create manifest
+  openmesh publish    # Register with OpenMesh
+```
 
-2. privacy-shield (0.0005 USDC)
-   Fast face detection and blurring
-   Latency: 95ms (p50), Uptime: 99.5%
+## MCP-Specific Features
 
-3. blur-master-pro (FREE)
-   Open source face blurring
-   Latency: 300ms (p50), Uptime: 98.0%
+### Auto-Discovery Flow
+
+```typescript
+// When running 'openmesh init --mcp'
+async function discoverMCPServer(url: string) {
+  const client = new MCPClient();
+  await client.connect(url);
+  
+  // Get server metadata
+  const info = await client.request('initialize');
+  
+  // Discover capabilities
+  const tools = await client.request('tools/list');
+  const resources = await client.request('resources/list');
+  
+  return {
+    name: info.serverInfo.name,
+    version: info.serverInfo.version,
+    tools: tools.tools,
+    resources: resources.resources
+  };
+}
+```
+
+### Payment Integration
+
+```yaml
+# Generated manifest.yaml
+mcp:
+  server_url: "https://analyzer.example.com/mcp"
+  transport: "http"
+
+pricing:
+  model: "per_tool"
+  tools:
+    analyze_complexity: 0.001
+    format_code: 0.0005
+    find_bugs: 0.002
 ```
 
 ## Configuration
@@ -127,18 +226,21 @@ Found 3 services:
 ### Global Config (`~/.openmesh/config.yaml`)
 
 ```yaml
-registry: https://registry.openmesh.fun
+registry: https://registry.openmesh.dev
 wallet: ~/.openmesh/wallet.json
 default_chain: base
 analytics: true
+mcp:
+  timeout: 30000
+  retry: 3
 ```
 
 ### Environment Variables
 
 ```bash
 OPENMESH_REGISTRY=https://custom-registry.com
+OPENMESH_MCP_TIMEOUT=60000
 OPENMESH_WALLET=/path/to/wallet.json
-OPENMESH_CHAIN=ethereum
 ```
 
 ## Output Formats
@@ -146,157 +248,128 @@ OPENMESH_CHAIN=ethereum
 ### Default (Human-Readable)
 
 ```bash
-$ openmesh status
-Service: face-blur-api
-Status: ✓ Healthy
-Uptime: 99.9% (30 days)
-Calls: 1,234,567 total
-Revenue: 1,234.56 USDC
+$ openmesh inspect code-analyzer-mcp
+MCP Server: code-analyzer-mcp
+Version: 1.0.0
+Transport: HTTP
+Endpoint: https://analyzer.example.com/mcp
+
+Tools (5):
+  - analyze_complexity (0.001 USDC)
+  - format_code (0.0005 USDC)  
+  - find_bugs (0.002 USDC)
+  - suggest_refactor (0.001 USDC)
+  - generate_tests (0.003 USDC)
+
+Performance:
+  Uptime: 99.9% (30 days)
+  Avg latency: 152ms
+  Total calls: 45,678
+  Revenue: 89.34 USDC
 ```
 
 ### JSON Output (`--json`)
 
 ```bash
-$ openmesh status --json
+$ openmesh discover "code" --json
 {
-  "name": "face-blur-api",
-  "status": "healthy",
-  "uptime_30d": 0.999,
-  "total_calls": 1234567,
-  "revenue_usdc": 1234.56
+  "results": [
+    {
+      "server": "code-analyzer-mcp",
+      "tool": "analyze_complexity",
+      "price": 0.001,
+      "currency": "usdc",
+      "endpoint": "https://analyzer.example.com/mcp"
+    }
+  ]
 }
-```
-
-### Quiet Mode (`-q`)
-
-```bash
-$ openmesh validate -q && echo "Valid"
-Valid
 ```
 
 ## Error Handling
 
-Clear, actionable error messages:
+MCP-specific error messages:
 
 ```bash
 $ openmesh validate
 ✗ Validation failed:
-  - Missing required field: endpoint
-  - Invalid runtime: python-3.13 (supported: python-3.12, node-20, go-1.21)
-  - Capability 'blur_faces' missing input_schema
+  - Cannot connect to MCP server at https://analyzer.example.com/mcp
+  - Server returned error: "Authentication required"
+  - Tool 'analyze_code' not found in server response
 
-Fix these issues and run 'openmesh validate' again
+Troubleshooting:
+  1. Check if MCP server is running
+  2. Verify transport protocol (http/stdio/websocket)
+  3. Ensure server implements standard MCP protocol
 ```
 
-## Integration Examples
+## Development Features
 
-### CI/CD Pipeline
-
-```yaml
-# .github/workflows/deploy.yml
-- name: Validate OpenMesh manifest
-  run: |
-    npm install -g openmesh
-    openmesh validate
-    openmesh test
-
-- name: Publish to registry
-  if: github.ref == 'refs/heads/main'
-  run: openmesh publish --yes
-```
-
-### Docker Integration
-
-```dockerfile
-FROM node:20-alpine
-RUN npm install -g openmesh
-COPY manifest.yaml .
-RUN openmesh validate
-```
-
-### Pre-commit Hook
+### Local Testing
 
 ```bash
-#!/bin/sh
-# .git/hooks/pre-commit
-if [ -f manifest.yaml ]; then
-  openmesh validate --quiet || exit 1
-fi
+$ openmesh dev
+✓ Starting local MCP server on port 3000
+✓ Payment simulation enabled
+✓ Mock wallet loaded
+
+MCP Development Server
+- Endpoint: http://localhost:3000/mcp
+- Dashboard: http://localhost:3000/dashboard
+- Payments: Simulated (no real charges)
+
+Press Ctrl+C to stop
+```
+
+### Integration Testing
+
+```typescript
+// Test MCP server with OpenMesh
+import { testMCPServer } from '@openmesh/cli';
+
+await testMCPServer({
+  manifest: './manifest.yaml',
+  testCases: [
+    {
+      tool: 'analyze_complexity',
+      input: { code: 'function test() {}' },
+      expectedFields: ['complexity', 'suggestions']
+    }
+  ]
+});
 ```
 
 ## Future Features
 
 ### Version 0.2
-
-- `openmesh logs` - View service logs
-- `openmesh metrics` - Detailed analytics
-- `openmesh rollback` - Revert to previous manifest
-- Multiple manifest support
+- `openmesh compose` - Chain multiple MCP tools
+- `openmesh benchmark` - Performance testing
+- `openmesh migrate` - Convert REST APIs to MCP
 
 ### Version 0.3
-
-- `openmesh compose` - Combine multiple services
-- `openmesh test --load` - Load testing
-- `openmesh monitor` - Real-time monitoring
-- GraphQL support
+- Claude Desktop integration
+- LangChain/AutoGen plugins
+- Tool recommendation engine
 
 ### Version 1.0
-
-- Full decentralized registry
-- Multi-signature support
-- Service dependencies
-- Automated migrations
+- Decentralized MCP registry
+- Cross-server tool composition
+- SLA enforcement
 
 ## Design Principles
 
-1. **Fast by Default**: Sub-second operations
-2. **Offline First**: Works without internet until publish
-3. **Clear Errors**: Always suggest next steps
-4. **Composable**: Unix-style, plays well with others
-5. **No Lock-in**: Export/import everything
+1. **MCP-Native**: Built specifically for MCP servers
+2. **Auto-Discovery**: Minimize manual configuration
+3. **Payment-First**: Easy monetization for developers
+4. **Developer-Friendly**: Clear errors, helpful defaults
+5. **Extensible**: Plugin system for new features
 
-## Technical Stack Options
+## Technical Stack
 
-### Option 1: Rust
-- Single binary, fast, cross-platform
-- Good for cryptographic operations
-- Steep learning curve
-
-### Option 2: Go
-- Simple deployment, good concurrency
-- Great for networked CLI tools
-- Easy to maintain
-
-### Option 3: TypeScript/Node
-- Familiar to web developers
-- Easy MCP integration
-- Requires Node runtime
-
-**Recommendation**: Start with TypeScript for rapid iteration, consider Rust for v1.0
-
-## Testing Strategy
-
-```bash
-# Unit tests
-npm test
-
-# Integration tests
-npm run test:integration
-
-# E2E tests with mock registry
-npm run test:e2e
-
-# Load tests
-npm run test:load
-```
-
-## Open Questions
-
-1. Should we support multiple manifests per directory?
-2. How to handle manifest inheritance/composition?
-3. Should we add a `openmesh doctor` command?
-4. Interactive mode vs flags for all commands?
-5. How to handle private/enterprise registries?
+- **Language**: TypeScript (using MCP SDK)
+- **MCP Client**: @modelcontextprotocol/sdk
+- **CLI Framework**: Commander.js
+- **Payment**: x402 protocol integration
+- **Testing**: Jest with MCP mocks
 
 ---
 

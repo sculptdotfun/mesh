@@ -5,260 +5,315 @@ Status: Design Phase
 
 ## Overview
 
-OpenMesh consists of three core components:
-1. **CLI Tool** - Local developer tool for manifest management
-2. **Registry** - Decentralized discovery service
-3. **Client Libraries** - Agent integration helpers
+OpenMesh is the discovery and monetization layer for Model Context Protocol (MCP) servers. It consists of three core components:
+
+1. **CLI Tool** - MCP server management and payment integration
+2. **Registry** - Discovery service for MCP tools
+3. **Client Libraries** - MCP-enhanced clients with payment support
+
+## MCP Integration Strategy
+
+### What MCP Provides
+- Standardized tool/resource definitions
+- JSON-RPC communication protocol
+- Transport mechanisms (stdio, HTTP/SSE, WebSocket)
+- Tool schemas and validation
+
+### What OpenMesh Adds
+- **Discovery**: Find MCP servers by capability
+- **Monetization**: x402 payment integration
+- **Reputation**: Quality metrics and ratings
+- **Analytics**: Usage tracking and insights
 
 ## CLI Design
 
 ### Core Commands
 
 ```bash
-# Manifest Management
-openmesh init          # Interactive manifest creation
-openmesh validate      # Validate manifest.yaml syntax and semantics
-openmesh test          # Test endpoint health and capabilities
+# MCP Server Management
+openmesh init --mcp      # Create manifest from MCP server
+openmesh validate        # Test MCP endpoints and tools
+openmesh publish         # Register MCP server
 
-# Registry Operations  
-openmesh publish       # Publish manifest to registry
-openmesh update        # Update existing registry entry
-openmesh unpublish     # Remove from registry
+# Discovery
+openmesh discover        # Find MCP tools by capability
+openmesh inspect         # View server details and tools
+openmesh test            # Try MCP server before integrating
 
 # Payment Management
-openmesh enable x402   # Add x402 payment rail
-openmesh enable stripe # Add Stripe-402 rail (future)
-openmesh disable       # Remove payment requirements
+openmesh enable x402     # Add payment middleware to MCP
+openmesh pricing         # Configure per-tool pricing
+openmesh earnings        # View payment analytics
 
-# Monitoring
-openmesh status        # Check service health and stats
-openmesh earnings      # View payment history (if enabled)
-
-# Migration
-openmesh export        # Export configuration
-openmesh import        # Import from other formats
+# Development
+openmesh dev             # Local testing with payments
+openmesh logs            # View server activity
 ```
 
-### Design Principles
+### MCP Auto-Discovery
 
-- **Single Binary**: No runtime dependencies, works everywhere
-- **Manifest-Driven**: manifest.yaml is the source of truth
-- **Local-First**: Works without network until publish
-- **Progressive Enhancement**: Start free, add payments later
-- **Zero Lock-in**: All operations reversible
+When initializing, OpenMesh connects to the MCP server and:
 
-### CLI Architecture
+1. Calls `initialize` to get server info
+2. Calls `tools/list` to discover available tools
+3. Calls `resources/list` to find resources
+4. Generates manifest with discovered capabilities
+
+```typescript
+// Auto-discovery flow
+const client = new MCPClient();
+await client.connect(serverUrl);
+
+const serverInfo = await client.initialize();
+const tools = await client.listTools();
+const resources = await client.listResources();
+
+// Generate manifest
+const manifest = {
+  name: serverInfo.name,
+  mcp: {
+    server_url: serverUrl,
+    transport: "http",
+    tools: tools.map(t => t.name),
+    resources: resources.map(r => r.uri)
+  }
+};
+```
+
+## Registry Architecture
+
+### MCP-Specific Features
 
 ```
-openmesh CLI
-├── Parser (manifest.yaml)
-├── Validator
-│   ├── Schema validation
-│   ├── Endpoint health check
-│   └── Capability verification
-├── Registry Client
-│   ├── Publish (HTTP POST)
-│   ├── Query (HTTP GET)
-│   └── Signature verification
-└── Payment Adapters
-    ├── x402 (Base, Solana)
-    ├── Stripe-402 (planned)
-    └── Lightning (future)
+Registry API
+├── MCP Discovery
+│   ├── Tool search (by name, description)
+│   ├── Resource search (by type, URI pattern)
+│   └── Capability matching
+├── Server Management
+│   ├── Health monitoring (via MCP ping)
+│   ├── Tool availability tracking
+│   └── Performance metrics
+└── Payment Integration
+    ├── Tool-level pricing
+    ├── Usage tracking
+    └── Payment verification
 ```
-
-## Registry Design
-
-### Core Requirements
-
-- **Permissionless**: Anyone can publish
-- **Immutable**: Published manifests can't be altered
-- **Queryable**: Fast search by capability, price, latency
-- **Decentralized**: No single point of failure
-- **Free**: Reading is always free
 
 ### Registry API
 
 ```http
-# Publish a manifest
-POST /publish
-Content-Type: application/json
-X-Signature: <manifest signature>
-{
-  "manifest": { ... },
-  "signature": "0x...",
-  "timestamp": 1234567890
+# Discover MCP tools
+GET /discover/tools?q=code+analysis&max_price=0.001
+Response: [
+  {
+    "server": "code-analyzer-mcp",
+    "tool": "analyze_complexity",
+    "description": "Analyze code complexity",
+    "price": 0.0005,
+    "avg_latency": 150
+  }
+]
+
+# Get MCP server details
+GET /mcp/{server-name}
+Response: {
+  "name": "code-analyzer-mcp",
+  "transport": "http",
+  "endpoint": "https://analyzer.example.com/mcp",
+  "tools": [...],
+  "resources": [...],
+  "pricing": {...}
 }
 
-# Query services
-GET /services?capability=blur_faces&max_price=0.001&max_latency=100
-
-# Get specific manifest
-GET /manifest/{service-name}
-
-# Get health metrics
-GET /health/{service-name}
-
-# Live feed (WebSocket)
-WS /feed
+# Real-time tool availability
+WS /mcp/availability
+→ {"server": "analyzer", "tool": "format_code", "available": true}
 ```
 
-### Data Structure
+## MCP Payment Middleware
 
-```json
-{
-  "services": [
-    {
-      "name": "face-blur-api",
-      "manifest_hash": "QmX...",
-      "manifest": { ... },
-      "published_at": "2025-01-01T00:00:00Z",
-      "last_seen": "2025-01-01T00:01:00Z",
-      "metrics": {
-        "uptime_30d": 0.999,
-        "latency_p50": 95,
-        "latency_p99": 230,
-        "total_calls": 1234567,
-        "success_rate": 0.998
-      },
-      "reputation": {
-        "score": 0.95,
-        "reviews": 1234,
-        "disputes": 2
-      }
-    }
-  ]
-}
-```
-
-### Registry Implementation Options
-
-**Option 1: Centralized Bootstrap**
-- Simple PostgreSQL + API
-- Run by SCULPT initially
-- Easy migration path to decentralized
-
-**Option 2: IPFS + Smart Contract**
-- Manifests on IPFS
-- Index on Base/Solana
-- Higher complexity, better decentralization
-
-**Option 3: Federation**
-- Multiple registry nodes
-- Gossip protocol for sync
-- Medium complexity, good resilience
-
-**Recommendation**: Start with Option 1, design for Option 3
-
-## Client Integration
-
-### Agent Libraries
-
-```python
-# Python (for AutoGen, etc)
-from openmesh import Client
-
-mesh = Client()
-services = mesh.find(
-    capability="blur_faces",
-    max_price=0.001,
-    max_latency=100
-)
-
-result = await services[0].call(
-    "blur_faces",
-    image=image_data,
-    payment_proof=wallet.sign(0.001)
-)
-```
+### Server-Side Integration
 
 ```typescript
-// TypeScript (for LangChain, etc)
-import { OpenMesh } from 'openmesh';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { x402Middleware } from '@openmesh/mcp-x402';
 
-const mesh = new OpenMesh();
-const ocr = await mesh.discover({
-  capability: 'extract_text',
-  maxPrice: 0.002
+const server = new Server({
+  name: 'code-analyzer',
+  version: '1.0.0'
 });
 
-const text = await ocr.call('extract_text', { image });
+// Add payment middleware
+server.use(x402Middleware({
+  pricing: {
+    'analyze_complexity': 0.001,
+    'format_code': 0.0005,
+    'refactor_function': 0.005
+  },
+  address: '0x...',
+  chain: 'base'
+}));
+
+// Tools work normally, payment handled by middleware
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  // Payment already verified by middleware
+  return handleToolCall(request.params.name, request.params.arguments);
+});
 ```
 
-### Integration Points
+### Client-Side Integration
 
-- **LangChain**: Custom tool wrapper
-- **AutoGen**: Agent capability provider
-- **CrewAI**: Tool discovery plugin
-- **Custom Agents**: Direct API calls
+```typescript
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { OpenMeshTransport } from '@openmesh/mcp-client';
+
+// OpenMesh transport handles payments automatically
+const transport = new OpenMeshTransport({
+  serverUrl: 'https://analyzer.example.com/mcp',
+  wallet: userWallet
+});
+
+const client = new Client({
+  name: 'my-agent',
+  version: '1.0.0'
+}, {
+  capabilities: {}
+});
+
+await client.connect(transport);
+
+// Call tools normally, payment happens transparently
+const result = await client.callTool('analyze_complexity', {
+  code: sourceCode
+});
+```
+
+## Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────┐
+│                   AI Agent                           │
+│  (Claude, GPT, LangChain, AutoGen, Custom)         │
+└─────────────────┬───────────────────────────────────┘
+                  │ MCP + x402 headers
+┌─────────────────▼───────────────────────────────────┐
+│              OpenMesh Client                         │
+│  - Discovers MCP servers                            │
+│  - Handles x402 payments                            │
+│  - Routes to best server                            │
+└─────────────────┬───────────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────────┐
+│           OpenMesh Registry                          │
+│  - Indexes MCP tools/resources                      │
+│  - Tracks availability                              │
+│  - Monitors performance                             │
+└─────────────────┬───────────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────────┐
+│           MCP Servers (Enhanced)                     │
+│  - Standard MCP tools/resources                     │
+│  - OpenMesh payment middleware                      │
+│  - Usage analytics                                  │
+└─────────────────────────────────────────────────────┘
+```
 
 ## Security Considerations
 
-### Manifest Signing
-- All manifests signed by service author
-- Public key in manifest, verified by registry
-- Prevents tampering and spoofing
+### MCP-Specific Security
 
-### Payment Security
-- x402 uses standard crypto signatures
-- No payment info in manifest (just address)
-- Clients verify receipts independently
+1. **Transport Security**
+   - HTTPS required for HTTP transport
+   - Signature verification for stdio transport
+   - Rate limiting per tool
 
-### Health Probing
-- Registry probes /health endpoints
-- Services can't fake uptime
-- Bad actors naturally filtered by reputation
+2. **Payment Security**
+   - Payment proof required before tool execution
+   - Replay attack prevention
+   - Tool-specific pricing enforcement
+
+3. **Access Control**
+   - Optional API key support (legacy compatibility)
+   - Payment as primary authentication
+   - Tool-level permissions
 
 ## Performance Targets
 
-- Manifest validation: <10ms
+- MCP tool discovery: <100ms
+- Payment verification: <50ms
+- Tool execution: Native MCP performance
 - Registry query: <50ms (p99)
-- Publish latency: <1s
-- Health probe interval: 60s
-- Full registry sync: <10s
+- Auto-discovery: <2s for full server scan
 
 ## Migration Path
 
-### From Existing APIs
+### For Existing MCP Servers
 
 ```bash
-# Import from OpenAPI
-openmesh import openapi spec.json
+# 1. Add OpenMesh to existing MCP server
+cd my-mcp-server
+npm install @openmesh/mcp-x402
 
-# Import from MCP
-openmesh import mcp https://api.example.com/mcp
+# 2. Create manifest
+openmesh init --mcp
 
-# Import from GraphQL
-openmesh import graphql schema.graphql
+# 3. Add payment (optional)
+openmesh enable x402
+
+# 4. Publish
+openmesh publish
 ```
 
-### Between Providers
+### For New MCP Servers
 
 ```bash
-# Export current state
-openmesh export > backup.json
+# 1. Create MCP server with OpenMesh template
+openmesh create my-server --template mcp-typescript
 
-# Switch providers
-openmesh update --endpoint https://new-provider.com
+# 2. Implement your tools
+# ... edit src/tools.ts ...
 
-# Or self-host
-openmesh update --endpoint https://my-server.com
+# 3. Configure and publish
+openmesh publish
 ```
 
-## Open Questions
+## Integration Examples
 
-1. Should we support manifest versioning?
-2. How to handle service deprecation?
-3. Should registry charge for listings?
-4. How to prevent spam/abuse?
-5. Standardize error responses?
+### LangChain Integration
+
+```python
+from langchain.tools import Tool
+from openmesh import discover_mcp_tool
+
+# Discover and use MCP tool
+analyzer = discover_mcp_tool("code_analysis")
+tool = Tool(
+    name="analyze_code",
+    func=analyzer.analyze_complexity,
+    description="Analyze code complexity via MCP"
+)
+```
+
+### AutoGen Integration
+
+```python
+from autogen import AssistantAgent
+from openmesh import MCPToolkit
+
+agent = AssistantAgent(
+    name="analyzer",
+    tools=MCPToolkit.discover("code_analysis")
+)
+```
 
 ## Next Steps
 
-1. Implement CLI MVP (just init + validate)
-2. Deploy test registry (PostgreSQL + REST)
-3. Create example integrations
-4. Gather feedback from agent developers
-5. Iterate on manifest format
+1. Implement MCP client with discovery
+2. Build x402 middleware for MCP
+3. Create registry with tool indexing
+4. Develop example MCP servers
+5. Test with Claude Desktop
 
 ---
 

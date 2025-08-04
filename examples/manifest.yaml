@@ -1,34 +1,48 @@
-# Example OpenMesh manifest for a face-blurring service
+# Example OpenMesh manifest for an MCP code analysis server
 version: "0.1"
-name: "face-blur-api"
-description: "Privacy-preserving image processing with face detection and blurring"
+name: "code-analyzer-mcp"
+description: "AI-powered code analysis and refactoring tools via MCP"
 
-# Runtime configuration
-runtime: "python-3.12"
-endpoint: "https://face-blur.example.com"
-health: "/health"
+# MCP server configuration
+mcp:
+  server_url: "https://analyzer.example.com/mcp"
+  transport: "http"
+  version: "1.0.0"
 
-# Service capabilities
-capabilities:
-  - name: "blur_faces"
-    description: "Detect and blur all faces in an image"
-    input_schema: "https://face-blur.example.com/schemas/blur_faces_input.json"
-    output_schema: "https://face-blur.example.com/schemas/blur_faces_output.json"
+# Tools auto-discovered from MCP server
+# These are populated automatically via 'openmesh init --mcp'
+tools:
+  - name: "analyze_complexity"
+    description: "Analyze code complexity and provide improvement suggestions"
+    pricing: 0.001
   
-  - name: "count_faces"
-    description: "Count the number of faces in an image"
-    input_schema: "https://face-blur.example.com/schemas/count_faces_input.json"
-    output_schema: "https://face-blur.example.com/schemas/count_faces_output.json"
+  - name: "format_code"
+    description: "Format code using AI-powered style detection"
+    pricing: 0.0005
   
-  - name: "blur_selective"
-    description: "Blur specific faces based on coordinates"
-    input_schema: "https://face-blur.example.com/schemas/blur_selective_input.json"
-    output_schema: "https://face-blur.example.com/schemas/blur_selective_output.json"
+  - name: "find_bugs"
+    description: "Detect potential bugs and security issues"
+    pricing: 0.002
+  
+  - name: "suggest_refactor"
+    description: "Suggest refactoring opportunities"
+    pricing: 0.001
+  
+  - name: "generate_tests"
+    description: "Generate unit tests for functions"
+    pricing: 0.003
+
+# Resources provided by the MCP server
+resources:
+  - uri: "code://project/*"
+    description: "Access to project source code"
+  - uri: "ast://analysis/*"
+    description: "Abstract syntax tree analysis results"
 
 # Payment configuration
 pricing:
-  model: "per_call"
-  amount: "0.001"
+  model: "per_tool"
+  default: 0.001
   currency: "usdc"
 
 payment:
@@ -40,16 +54,11 @@ payment:
 performance:
   latency_p50: 150
   latency_p99: 400
-  throughput: 500
-  regions: ["us-east-1", "eu-west-1", "ap-southeast-1"]
+  throughput: 1000
+  regions: ["us-east-1", "eu-central-1", "ap-southeast-1"]
 
 # Additional metadata
-author: "privacy-tools@example.com"
-repository: "https://github.com/example/face-blur-api"
-documentation: "https://docs.example.com/face-blur"
+author: "alice@codetools.dev"
+repository: "https://github.com/codetools/analyzer-mcp"
+documentation: "https://docs.codetools.dev/mcp"
 license: "MIT"
-
-# Special requirements
-requirements:
-  compute: "gpu"
-  compliance: ["gdpr", "ccpa"]
