@@ -1,14 +1,17 @@
-# Basic MeshFastAPI Example
+# Basic MeshFastAPI Example (Proposed)
 
-Shows how OpenMesh SDKs provide:
+**⚠️ NOT IMPLEMENTED YET** - This shows the planned SDK interface.
+
+Will provide:
 - ✅ MCP compliance (`/tools/list`, `/tools/call`)
 - ✅ Optional x402 micropayments (toggle on/off)
 - ✅ Auto-generated manifest.yaml
 
-## Quick Start
+## Future Usage (Not Available Yet)
 
 ```bash
-pip install openmesh-fastapi
+# SDK doesn't exist yet
+pip install openmesh-fastapi  # FUTURE
 python main.py
 ```
 

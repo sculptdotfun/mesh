@@ -2,7 +2,7 @@
 
 The discovery layer (and optional micropay-per-call layer) for Model Context Protocol (MCP) servers.
 
-**Any MCP server can join** - Use our SDKs for instant setup, or bring your own manifest.
+**🚧 Status: Design Phase** - This is a specification and roadmap. No code has been built yet.
 
 ## Mission
 
@@ -19,10 +19,11 @@ Become the global search and instant connect layer for MCP servers, with optiona
 
 OpenMesh solves this with thin wrappers that reach 80% of servers with ~300 LOC each.
 
-## Quick Start
+## How It Will Work (Proposed)
 
-### Option A: Use Our SDKs (Easiest)
+### Option A: SDKs (Planned)
 ```bash
+# NOT YET AVAILABLE - This is the planned interface
 pip install openmesh-fastapi          # Python + FastAPI (41% of MCP servers)
 npm i openmesh-express                # Node + Express (32% of MCP servers)
 ```
@@ -62,9 +63,9 @@ tool('sentiment', 'Quick sentiment score', (text) => {
 // Writes manifest.yaml on startup
 ```
 
-### Option B: Bring Your Own Manifest (Any Language)
+### Option B: Direct Registry (Planned)
 ```yaml
-# manifest.yaml
+# Proposed manifest format
 version: "0.1"
 id: "my-server"
 name: "My MCP Server"
@@ -74,11 +75,12 @@ mcp:
 ```
 
 ```bash
-npx openmesh publish   # Upload to registry
-# Or POST directly to https://registry.openmesh.dev/servers
+# FUTURE: Will support direct uploads
+npx openmesh publish   # Not yet built
+# POST to https://registry.openmesh.dev/servers  # API doesn't exist yet
 ```
 
-Works with **any MCP server** in any language - Go, Rust, .NET, Java, etc.
+Will work with **any MCP server** in any language - Go, Rust, .NET, Java, etc.
 
 ## Current MCP Landscape (Aug 2025)
 
@@ -100,27 +102,26 @@ Works with **any MCP server** in any language - Go, Rust, .NET, Java, etc.
 - **Adoption**: <10% of servers have payment headers
 - **Our role**: Connect existing libraries, not build new ones
 
-## Implementation Roadmap
+## What Needs to Be Built
 
-### Phase 1: Discovery Core (Current)
-- **Manifest spec** - Define server metadata format
-- **Registry API/UI** - Search and filter MCP servers
-- **CLI** - `init`, `publish`, `search` commands
+### Phase 1: Discovery Core (Not Started)
+- [ ] **Manifest spec** - Define server metadata format (drafted in SPEC.md)
+- [ ] **Registry API** - Search and filter MCP servers (no code yet)
+- [ ] **CLI** - `init`, `publish`, `search` commands (not implemented)
 
-### Phase 2: Starter SDKs (Next)
-- **openmesh-fastapi** - Re-export existing MCP/x402 libs
-- **openmesh-express** - Thin wrapper around x402-express
-- **Auto-manifest** - SDKs generate manifest.yaml
+### Phase 2: Starter SDKs (Not Started)
+- [ ] **openmesh-fastapi** - Python wrapper
+- [ ] **openmesh-express** - Node wrapper
+- [ ] **Auto-manifest** - SDKs generate manifest.yaml
 
-### Phase 3: Network Effects
-- **Registry flywheel** - Every SDK prompts "publish to OpenMesh"
-- **Built-in marketing** - READMEs link back to registry
-- **Price routing** - Agents choose by cost/latency
+### Phase 3: Network Effects (Future)
+- [ ] Registry flywheel
+- [ ] Built-in marketing
+- [ ] Price routing
 
 ### Phase 4: Scale (Future)
-- Performance optimization
-- Additional language SDKs
-- Advanced search features
+- [ ] Additional language SDKs
+- [ ] Performance optimization
 
 ## Why This Approach Wins
 

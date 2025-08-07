@@ -1,8 +1,10 @@
 # Changelog
 
-## v0.1-alpha (Current)
+## v0.0.1 (Current) - Specification Only
 
-### Added
+**⚠️ No implementation yet** - This is a design document and roadmap.
+
+### Proposed Features (Not Built)
 - **Language-specific SDKs** that handle MCP compliance automatically
   - `openmesh-fastapi` for Python/FastAPI (41% of MCP servers)
   - `openmesh-express` for Node/Express (32% of MCP servers)
