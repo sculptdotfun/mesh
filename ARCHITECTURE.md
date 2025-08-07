@@ -71,11 +71,11 @@ Agent → MCP Server → x402 Middleware → Coinbase Facilitator
 3. **Discovery first** - The real problem
 4. **Existing momentum** - x402-express has adoption
 
-## Not Building (Yet)
+## Not Building
 
-- ❌ Our own facilitator service
+- ❌ Payment processing
 - ❌ Wallet management
 - ❌ On-chain verification
-- ❌ KYC/AML compliance
+- ❌ Identity/KYC
 
-Start simple. Add complexity only when volume justifies it.
+We connect existing tools, not build new financial infrastructure.

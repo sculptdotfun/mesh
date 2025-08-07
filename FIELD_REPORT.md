@@ -27,20 +27,19 @@
 1. **Two thin wrappers (~300 LOC each) reach 73% of servers**
 2. **Re-use existing libraries** (x402-express, fastmcp) instead of forking
 3. **Registry generates network effects** via SDK auto-prompts
-4. **Defer facilitator service** until volume justifies compliance
+4. **Focus on discovery, not payment infrastructure**
 
 ## Recommended Path
 
-### Now: Discovery Core
+### Phase 1: Discovery Core
 - Manifest spec
 - Registry API  
 - CLI tools
 - Two SDKs (FastAPI + Express)
 
-### Later: Optional Payments
-- Point to Coinbase facilitator initially
-- Consider own facilitator at scale (0.5-2% fee)
-- Never custody funds directly
+### Phase 2: Payment Integration
+- Use existing x402 libraries
+- No custody, just headers
 
 ## Why This Wins
 

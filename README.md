@@ -79,10 +79,10 @@ npx openmesh search    # Find MCP tools
 - **Built-in marketing** - READMEs link back to registry
 - **Price routing** - Agents choose by cost/latency
 
-### Phase 4: Optional Facilitator (Future)
-- Only if volume justifies compliance overhead
-- 0.5-2% fee on transactions
-- For now: point to Coinbase's facilitator
+### Phase 4: Scale (Future)
+- Performance optimization
+- Additional language SDKs
+- Advanced search features
 
 ## Why This Approach Wins
 
@@ -121,16 +121,6 @@ Focus areas based on field report:
 - **Payments optional**: Free tools stay free, paid tools get rails
 - **Agent-first**: Built for AI, not humans
 
-## Decision Matrix
-
-| Approach | OpenMesh Role | Why/Why Not |
-|----------|--------------|-------------|
-| Discovery-only | Neutral index, link to x402 libs | Fastest ship, no regulatory surface |
-| SDKs but no custody | Thin wrappers + docs | Drives adoption, low maintenance |
-| Operate facilitator | Verification & settlement (0.5-2% fee) | Revenue moat, but adds compliance |
-| Full platform | Wallets, off-ramps, KYC/AML | High upside but Series-B territory |
-
-**Current decision**: Start with discovery + SDKs, defer facilitator.
 
 ## License
 

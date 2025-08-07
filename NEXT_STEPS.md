@@ -92,12 +92,8 @@ servers = openmesh.discover("weather")
 
 **Recommendation:** Start with GitHub - PRs to add servers.
 
-### Payment Facilitator
-**Options:**
-1. Point to Coinbase (no compliance burden)
-2. Build our own (0.5-2% revenue)
-
-**Recommendation:** Use Coinbase until >$10k/month volume.
+### Payment Integration
+Use existing facilitators (Coinbase's x402 reference implementation).
 
 ### SDK Distribution
 **Options:**
