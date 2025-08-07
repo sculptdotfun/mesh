@@ -61,20 +61,32 @@ stats:
   rating: 4.8
 ```
 
-## Registry Publishing
+## Publishing to Registry
 
+### Method 1: CLI
 ```bash
-# Generate manifest
-openmesh init
-
-# Publish to registry
-openmesh publish
-
-# Registry adds metadata
-published_at: "2025-01-07T12:00:00Z"
-publisher: "alice@example.com"
-verified: true
+openmesh publish manifest.yaml
 ```
+
+### Method 2: Direct API
+```bash
+curl -X POST https://registry.openmesh.dev/servers \
+  -H "Content-Type: application/yaml" \
+  --data-binary @manifest.yaml
+```
+
+### Method 3: SDK Auto-publish
+```python
+# SDKs call the same API for you
+app = MeshFastAPI()  # Auto-generates and can publish
+```
+
+### What Registry Accepts
+- Any valid manifest (YAML or JSON)
+- From any source (SDK, CLI, direct POST, GitHub webhook)
+- For any MCP server (regardless of language/framework)
+
+The registry is **open to all** - not SDK-exclusive.
 
 ## Design Principles
 

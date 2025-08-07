@@ -2,6 +2,8 @@
 
 The discovery layer (and optional micropay-per-call layer) for Model Context Protocol (MCP) servers.
 
+**Any MCP server can join** - Use our SDKs for instant setup, or bring your own manifest.
+
 ## Mission
 
 Become the global search and instant connect layer for MCP servers, with optional x402 micropayments. Help agents find tools, help builders earn USDC per call without managing API keys.
@@ -19,7 +21,7 @@ OpenMesh solves this with thin wrappers that reach 80% of servers with ~300 LOC 
 
 ## Quick Start
 
-### 1. Install an SDK (choose one)
+### Option A: Use Our SDKs (Easiest)
 ```bash
 pip install openmesh-fastapi          # Python + FastAPI (41% of MCP servers)
 npm i openmesh-express                # Node + Express (32% of MCP servers)
@@ -60,11 +62,23 @@ tool('sentiment', 'Quick sentiment score', (text) => {
 // Writes manifest.yaml on startup
 ```
 
-### 3. Publish to registry
-```bash
-npx openmesh publish   # List on global registry
-npx openmesh search    # Find other MCP tools
+### Option B: Bring Your Own Manifest (Any Language)
+```yaml
+# manifest.yaml
+version: "0.1"
+id: "my-server"
+name: "My MCP Server"
+mcp:
+  endpoint: "https://api.example.com/mcp"
+  transport: ["http"]
 ```
+
+```bash
+npx openmesh publish   # Upload to registry
+# Or POST directly to https://registry.openmesh.dev/servers
+```
+
+Works with **any MCP server** in any language - Go, Rust, .NET, Java, etc.
 
 ## Current MCP Landscape (Aug 2025)
 
@@ -129,15 +143,13 @@ See [SPEC.md](SPEC.md) for the complete manifest format.
 3. **Publish pricing/latency** in search API for agent routing
 4. **Defer facilitator** until volume data justifies it
 
-## Advanced CLI (Optional)
+## Three Ways to Join OpenMesh
 
-For custom manifest generation without SDKs:
-```bash
-npx openmesh init --mcp    # Manual manifest creation
-npx openmesh validate      # Test your endpoints
-```
+1. **SDK Auto-magic** (FastAPI/Express) - Everything handled for you
+2. **Manual Manifest** - Write YAML, publish via CLI or API  
+3. **Direct API** - `POST /servers` with your manifest JSON
 
-Most developers won't need this - the SDKs handle everything automatically.
+All paths are equal citizens. Pick what fits your stack.
 
 ## Contributing
 
