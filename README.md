@@ -19,27 +19,51 @@ OpenMesh solves this with thin wrappers that reach 80% of servers with ~300 LOC 
 
 ## Quick Start
 
-### For FastAPI Developers (41% of MCP servers)
-```python
-pip install openmesh-fastapi
-# One decorator transforms your MCP server
-# Auto-generates manifest.yaml
-# Optional x402 in one line
-```
-
-### For Express Developers (32% of MCP servers)  
-```javascript
-npm install openmesh-express
-// Middleware drop-in for any Express app
-// Auto-discovery and manifest generation
-// x402-express integration built-in
-```
-
-### For Everyone
+### 1. Install an SDK (choose one)
 ```bash
-npx openmesh init      # Generate manifest
-npx openmesh publish   # List on registry
-npx openmesh search    # Find MCP tools
+pip install openmesh-fastapi          # Python + FastAPI (41% of MCP servers)
+npm i openmesh-express                # Node + Express (32% of MCP servers)
+```
+
+### 2. Add MCP compliance + optional x402
+
+**Python/FastAPI:**
+```python
+from openmesh_fastapi import MeshFastAPI, tool
+
+app = MeshFastAPI(
+    x402={"amount":"0.001","asset":"USDC","network":"base-mainnet"}  # 🔄 remove this line = free
+)
+
+@tool(description="Quick sentiment score")
+def sentiment(text: str):
+    return {"score": 0.8, "label": "positive"}
+
+# Auto-exposes /tools/list & /tools/call (MCP compliant)
+# Writes manifest.yaml on startup
+# Prints "openmesh publish" reminder
+```
+
+**Node/Express:**
+```javascript
+const { MeshExpress, tool } = require('openmesh-express')
+
+const app = MeshExpress({
+    x402: {amount: "0.001", asset: "USDC", network: "base-mainnet"}  // 🔄 remove this = free
+})
+
+tool('sentiment', 'Quick sentiment score', (text) => {
+    return {score: 0.8, label: 'positive'}
+})
+
+// Auto-exposes /tools/list & /tools/call
+// Writes manifest.yaml on startup
+```
+
+### 3. Publish to registry
+```bash
+npx openmesh publish   # List on global registry
+npx openmesh search    # Find other MCP tools
 ```
 
 ## Current MCP Landscape (Aug 2025)
@@ -104,6 +128,16 @@ See [SPEC.md](SPEC.md) for the complete manifest format.
    - Express: Wrap x402-express middleware
 3. **Publish pricing/latency** in search API for agent routing
 4. **Defer facilitator** until volume data justifies it
+
+## Advanced CLI (Optional)
+
+For custom manifest generation without SDKs:
+```bash
+npx openmesh init --mcp    # Manual manifest creation
+npx openmesh validate      # Test your endpoints
+```
+
+Most developers won't need this - the SDKs handle everything automatically.
 
 ## Contributing
 

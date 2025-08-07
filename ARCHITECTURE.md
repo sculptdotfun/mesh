@@ -6,21 +6,23 @@ OpenMesh = Discovery layer + optional micropayments for MCP servers.
 
 ## Components
 
-### 1. Registry (Discovery Core)
+### 1. Edge SDKs (MCP + optional x402)
+- `openmesh-fastapi` - Python wrapper (41% of market)
+- `openmesh-express` - Node wrapper (32% of market)
+- **Auto-exposes** `/tools/list` & `/tools/call` (MCP compliance)
+- **Auto-generates** manifest.yaml on startup
+- **Optional x402** - Just pass config object, or omit for free tools
+- **Prompts publish** - Prints "openmesh publish" reminder
+
+### 2. Registry (Discovery Core)
 - Search API for finding MCP servers by capability
 - Pricing/latency data for agent routing
 - No payment enforcement - just metadata
 
-### 2. SDKs (73% Market Coverage)
-- `openmesh-fastapi` - Wrapper for Python servers (41% of market)
-- `openmesh-express` - Wrapper for Node servers (32% of market)
-- Auto-generates manifest.yaml
-- Re-uses existing x402 libraries
-
-### 3. CLI
-- `openmesh init` - Generate manifest
+### 3. CLI (Optional)
 - `openmesh publish` - List on registry
 - `openmesh search` - Find MCP servers
+- `openmesh init --mcp` - Manual manifest (rarely needed)
 
 ## Implementation Strategy
 
@@ -34,18 +36,29 @@ Registry API
 
 ### Phase 2: SDK Wrappers
 ```python
-# FastAPI: One decorator
-@mcp.tool(price_usd=0.001)
-async def my_tool():
-    pass
+# FastAPI: MCP compliance + optional x402
+from openmesh_fastapi import MeshFastAPI, tool
+
+app = MeshFastAPI(
+    x402={"amount":"0.001","asset":"USDC"}  # Optional
+)
+
+@tool(description="My tool")
+def my_tool(input: str):
+    return {"result": "processed"}
 ```
 
 ```javascript
-// Express: Middleware
-mcp.tool('my_tool', {
-  priceUSD: 0.001,
-  handler: async () => {}
-});
+// Express: MCP compliance + optional x402
+const { MeshExpress, tool } = require('openmesh-express')
+
+const app = MeshExpress({
+    x402: {amount: "0.001", asset: "USDC"}  // Optional
+})
+
+tool('my_tool', 'My tool', async (input) => {
+    return {result: 'processed'}
+})
 ```
 
 ### Phase 3: Network Effects
@@ -73,9 +86,10 @@ Agent → MCP Server → x402 Middleware → Coinbase Facilitator
 
 ## Not Building
 
-- ❌ Payment processing
-- ❌ Wallet management
-- ❌ On-chain verification
-- ❌ Identity/KYC
+- ❌ **Facilitator service** - Use Coinbase's reference implementation
+- ❌ **Payment custody** - Never touch funds
+- ❌ **Wallet management** - Client handles their own
+- ❌ **On-chain verification** - Facilitator's job
+- ❌ **Identity/KYC** - Not our problem
 
 We connect existing tools, not build new financial infrastructure.
