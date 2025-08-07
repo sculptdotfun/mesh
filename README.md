@@ -1,100 +1,117 @@
 # OpenMesh
 
-The marketplace for Model Context Protocol (MCP) servers. Discover, pay, and use AI tools in milliseconds.
+The discovery layer (and optional micropay-per-call layer) for Model Context Protocol (MCP) servers.
 
-## The Problem
+## Mission
 
-MCP servers are revolutionizing how AI agents access tools and data. But they're missing two critical pieces: **discovery** and **monetization**.
+Become the global search and instant connect layer for MCP servers, with optional x402 micropayments. Help agents find tools, help builders earn USDC per call without managing API keys.
 
-Today: Manually configure each MCP server. No way to find new ones. No way for creators to get paid.
+**The Problem:** 90%+ of MCP servers are undiscoverable. 92% go unused. Builders earn $0.
 
-OpenMesh fixes this—any agent discovers any MCP server, pays instantly with x402, and gets to work.
+## The Opportunity
 
-## How It Works
+**7,925 MCP servers** exist today (per Glama directory, Aug 2025). But:
+- **No unified discovery** - agents can't find the right tools
+- **<10% have payments** - builders can't monetize easily
+- **80% use two stacks** - FastAPI (41%) and Express (32%)
 
-```bash
-# 1. Add OpenMesh to your MCP server
-$ npx openmesh init --mcp
-✓ Generated manifest.yaml for MCP server
-✓ Auto-discovered 5 tools from your server
+OpenMesh solves this with thin wrappers that reach 80% of servers with ~300 LOC each.
 
-# 2. Publish to the registry
-$ npx openmesh publish
-✓ MCP server registered
-✓ Tools indexed and searchable
-✓ Live at https://registry.openmesh.dev/your-server
+## Quick Start
 
-# 3. Enable payments (optional)
-$ npx openmesh enable x402
-✓ Payment middleware added
-✓ Each tool call now costs 0.001 USDC
+### For FastAPI Developers (41% of MCP servers)
+```python
+pip install openmesh-fastapi
+# One decorator transforms your MCP server
+# Auto-generates manifest.yaml
+# Optional x402 in one line
 ```
 
-## What This Enables
-
-**For AI Agents**:
-- Discover MCP tools across the entire ecosystem
-- Pay per use with x402 (no API keys!)
-- Switch providers instantly based on price/performance
-
-**For MCP Developers**:
-- Monetize your MCP server with one command
-- Get discovered by thousands of AI agents
-- Focus on building tools, not payment infrastructure
-
-**For the Ecosystem**:
-- Anthropic's MCP handles tool standardization
-- OpenMesh adds discovery and payments
-- Together: a complete AI tool economy
-
-## Project Status
-
-### Current (v0.1-draft):
-- ✅ Manifest specification drafted
-- ✅ CLI architecture designed  
-- ✅ Example implementations sketched
-- 🚧 Registry protocol in design
-- 🚧 x402 integration planned
-
-### Not Yet Built:
-- Actual CLI implementation
-- Registry infrastructure
-- Payment verification
-- Production deployments
-
-## Quick Start (Coming Soon)
-
-```bash
-# Install CLI
-npm install -g openmesh
-
-# For MCP server developers
-openmesh init --mcp              # Create manifest from MCP server
-openmesh validate                 # Test your MCP endpoints
-openmesh publish                  # Add to registry
-
-# For AI agents/developers
-openmesh discover "code analysis" # Find MCP tools
-openmesh test <server-name>       # Try before integrating
+### For Express Developers (32% of MCP servers)  
+```javascript
+npm install openmesh-express
+// Middleware drop-in for any Express app
+// Auto-discovery and manifest generation
+// x402-express integration built-in
 ```
+
+### For Everyone
+```bash
+npx openmesh init      # Generate manifest
+npx openmesh publish   # List on registry
+npx openmesh search    # Find MCP tools
+```
+
+## Current MCP Landscape (Aug 2025)
+
+| Stack | Observable Signals | % of ~7,900 servers | Our Approach |
+|-------|-------------------|---------------------|-------------|
+| Python + FastAPI | fastapi-mcp, fastmcp | 41% (3,249) | `openmesh-fastapi` wrapper |
+| Node/Express | express-mcp-handler | 32% (2,565) | `openmesh-express` wrapper |
+| Go + Gin | gin-mcp | 7% (553) | Future SDK |
+| Rust + Axum | rust-sdk | 5% (395) | Future SDK |
+| .NET | dotnet new mcpserver | 4% (316) | Future SDK |
+| Managed/Dedicated | Azure, Cloudflare | 6% (474) | Direct integration |
+
+**Key insight**: Two thin wrappers reach 73% of all MCP servers.
+
+## x402 Payment State
+
+- **x402-express**: 848 weekly downloads on npm
+- **Facilitator**: Coinbase hosts the reference implementation
+- **Adoption**: <10% of servers have payment headers
+- **Our role**: Connect existing libraries, not build new ones
+
+## Implementation Roadmap
+
+### Phase 1: Discovery Core (Current)
+- **Manifest spec** - Define server metadata format
+- **Registry API/UI** - Search and filter MCP servers
+- **CLI** - `init`, `publish`, `search` commands
+
+### Phase 2: Starter SDKs (Next)
+- **openmesh-fastapi** - Re-export existing MCP/x402 libs
+- **openmesh-express** - Thin wrapper around x402-express
+- **Auto-manifest** - SDKs generate manifest.yaml
+
+### Phase 3: Network Effects
+- **Registry flywheel** - Every SDK prompts "publish to OpenMesh"
+- **Built-in marketing** - READMEs link back to registry
+- **Price routing** - Agents choose by cost/latency
+
+### Phase 4: Optional Facilitator (Future)
+- Only if volume justifies compliance overhead
+- 0.5-2% fee on transactions
+- For now: point to Coinbase's facilitator
+
+## Why This Approach Wins
+
+1. **Minimal surface area** - Two SDKs cover 73% of servers (~300 LOC each)
+2. **No payment risk** - We don't custody funds
+3. **Existing momentum** - x402 libraries already have adoption (848 weekly downloads)
+4. **Discovery first** - 90%+ of servers are undiscoverable today
+5. **Developer habit** - Auto-manifest + "publish" prompt = viral loop
 
 ## Specification
 
 See [SPEC.md](SPEC.md) for the complete manifest format.
 
+## Next Engineering Steps
+
+1. **Design manifest schema** with optional pricing block (amount, asset, network, recipient)
+2. **Build two reference SDKs** that re-use existing libraries:
+   - FastAPI: Use existing DI hooks + fastmcp
+   - Express: Wrap x402-express middleware
+3. **Publish pricing/latency** in search API for agent routing
+4. **Defer facilitator** until volume data justifies it
+
 ## Contributing
 
-This is a community project under SCULPT. We need:
-
-- **MCP Integration**: Help us support more MCP features
-- **CLI Development**: TypeScript implementation using MCP SDK
-- **Registry Design**: How should MCP server discovery work?
-- **Example Servers**: Build MCP servers with OpenMesh payments
-- **Client Libraries**: Integrate OpenMesh into AI frameworks
-
-Join the discussion:
-- **Discord**: [discord.gg/sculpt](https://discord.gg/sculpt) → #openmesh
-- **GitHub Issues**: Design decisions, proposals, questions
+Focus areas based on field report:
+- **FastAPI/Express wrappers** - The 80/20 that reaches most servers
+- **Registry design** - How to aggregate existing directories?
+- **Price discovery** - Help agents route by cost
+- **Integration examples** - Show real MCP servers using OpenMesh
 
 ## Philosophy
 
@@ -104,23 +121,16 @@ Join the discussion:
 - **Payments optional**: Free tools stay free, paid tools get rails
 - **Agent-first**: Built for AI, not humans
 
-## Roadmap
+## Decision Matrix
 
-### Phase 1: MCP Discovery (Current)
-- Manifest spec for MCP servers
-- CLI for MCP server registration
-- Basic registry with tool search
+| Approach | OpenMesh Role | Why/Why Not |
+|----------|--------------|-------------|
+| Discovery-only | Neutral index, link to x402 libs | Fastest ship, no regulatory surface |
+| SDKs but no custody | Thin wrappers + docs | Drives adoption, low maintenance |
+| Operate facilitator | Verification & settlement (0.5-2% fee) | Revenue moat, but adds compliance |
+| Full platform | Wallets, off-ramps, KYC/AML | High upside but Series-B territory |
 
-### Phase 2: Payment Layer (Next)
-- x402 middleware for MCP
-- Per-tool pricing configuration
-- Payment verification system
-
-### Phase 3: Ecosystem Growth (Future)
-- Claude Desktop integration
-- LangChain/AutoGen plugins
-- Decentralized registry
-- Advanced analytics
+**Current decision**: Start with discovery + SDKs, defer facilitator.
 
 ## License
 
